@@ -23,6 +23,10 @@
 #include <stdio.h>//scanf
 #include <cmath>//sqrt
 #include <algorithm>    // std::next_permutation, std::sort
+#include <iostream>
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
+//#include <array>
 
 using namespace std;
 
@@ -32,6 +36,8 @@ using namespace std;
 #define MAX_CITIES		 		100
 #define NULO						-1
 #define MAX_INT         		0x7FFFFFFF
+//Populacao maxima
+#define POP_MAX 362880
 
 
 
@@ -50,6 +56,7 @@ class Grafo {
 	  int cidadesx[MAX_CITIES];
 	  int cidadesy[MAX_CITIES];
       int matriz[MAX_CITIES][MAX_CITIES];//int
+      int rotas[POP_MAX][MAX_CITIES];
       
    public:
       //--------------------------------------------------------------------
@@ -168,6 +175,101 @@ class Grafo {
 				}
 		    }
 	}
+	
+	int distanciaDoVetor(int permutation[]){
+		
+		int resp = 0;
+		/*printf("\n");
+		for(int pos = 0; pos < numCidades; pos++){
+				printf("%d ",permutation[pos]);
+		}*/
+		for(int pos = 0; pos < numCidades-1; pos++){
+			//printf("(%d-%d)resp:%d mat:%d \n",permutation[pos],permutation[pos+1],resp,matriz[permutation[pos]][permutation[pos+1]]);
+			resp = resp + matriz[permutation[pos]][permutation[pos+1]];
+			
+		}	
+		resp = resp + matriz[permutation[0]][permutation[numCidades-1]]; //se a ultima cidade volta pra primeira
+		//printf("ini-fim: %d\n",matriz[permutation[0]][permutation[numCidades-1]]);
+		//printf("resp:%d\n",resp);
+		return resp;
+
+	}
+	
+	void permuta(){
+		int permutationO[MAX_CITIES], distance=0;
+		int conta_pop=0;
+		int distancias[POP_MAX];
+		int min = MAX_INT, min2=MAX_INT,pos=0,pos2=0;
+		
+		
+		for(int pos = 0; pos < MAX_CITIES; pos++){//inicializa vetor
+			permutationO[pos] = NULO;
+			
+		}	
+		for(int pos = 0; pos < numCidades; pos++){//constroi indice
+			permutationO[pos] = pos;
+		}
+		
+		do{
+			
+			distancias[conta_pop] = distanciaDoVetor(permutationO);
+			if( distancias[conta_pop] < min){//procura menor distancia
+				pos2=pos;//posicao do segundo menor elem
+				min2=min;
+				min = distancias[conta_pop]; 
+				pos=conta_pop;//posicao do menor elemento
+			}
+		   for(int i = 0; i <  numCidades ; i++){ 
+                rotas[conta_pop][i]=permutationO[i];
+                cout<<rotas[conta_pop][i]<<" ";
+           }
+           cout<<distancias[conta_pop] ;
+        	conta_pop++;
+			cout<<" "<<endl;
+			
+		}while(next_permutation(permutationO+1,permutationO+numCidades) && conta_pop<POP_MAX);
+		
+			cout<<pos2<<" min "<<min2 <<endl;
+			cout<<pos<<" min "<<min <<endl;
+	
+	}
+	
+	//crossover
+	
+	void crossover(int p1[],int p2[]){//recebe pai1 e pai2
+	srand (time(NULL));
+		numCidades=4;
+		int f1[numCidades];
+		int particao=rand() % (numCidades/2);
+		int particao2= ( rand() % (numCidades/2) ) + numCidades/2;
+		cout<<particao2<<endl;
+		
+		//f1[2]==NULL;
+		for(int i=0; i< numCidades; i++){
+			if (i<particao && contem(f1,p1[i])==-1)
+				f1[i]=p1[i];
+			else if(contem(f1,p2[i])==-1)
+				f1[i]=p2[i];
+			else
+				f1[i]=p1[i];
+			
+				
+			cout<<f1[i]<< " ";
+		}
+		cout<<endl;
+			
+		
+	
+	}
+	
+	int contem(int vet [], int x){ // retorna a posicao do elemento x se ele existir e -1 se ele n existir no vetor
+		for(int i=0; i< sizeof(vet) / sizeof(int) ; i++)
+			if ( vet[i]==x )
+				return i;
+		
+		return -1;
+	}
+		
 
 
 };
@@ -176,13 +278,25 @@ class Grafo {
 // FUNCAO PRINCIPAL
 //=====================================================================
 int main(int argc, char **argv){
-
+/* initialize random seed: */
+//  srand (time(NULL));
 Grafo *g = new Grafo;
-
+		int p1[4]={1,2,3,4};
+		int p2[]={4,3,2,1};
+		//std::find(p1.begin(), p1.end(), 1) ;
+		
+		/*size_t p1size = sizeof(p1) / sizeof(int);
+		int *end = p1 + p1size;
+		if(std::find(p1, end, 10)!=end)
+		cout<<"achei";
+		*/
+		//cout<< g->contem(p1,4,10)<< endl;
+		
 		g->lerVertice();
-		//g->imprimirCidades();
-		//g->calcularDistancias();
+		g->calcularDistancias();
+		g->crossover(p1,p2);
 		//g->imprimirDistancias();
+		//g->permuta();
 		//g->imprimiBruteForce();
 		//g->imprimiAG();
 		//g->imprimiBB();
