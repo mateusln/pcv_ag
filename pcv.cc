@@ -26,7 +26,8 @@
 #include <iostream>
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
-//#include <array>
+#include <iterator>
+#include <string.h> //memcpy
 
 using namespace std;
 
@@ -57,6 +58,9 @@ class Grafo {
 	  int cidadesy[MAX_CITIES];
       int matriz[MAX_CITIES][MAX_CITIES];//int
       int rotas[POP_MAX][MAX_CITIES];
+      int popFilha; 
+      int popPai;
+      int rotasAux[POP_MAX][MAX_CITIES];
       int distancias[POP_MAX];
       
    public:
@@ -66,7 +70,8 @@ class Grafo {
       Grafo(){
 		 numCidades = 0;
 		 limparCidadesXYeMATRIZ();
-		 
+		 popFilha=0; 
+         popPai=POP_MAX;
       }//-------------------------------------------------------------------
 
 
@@ -196,8 +201,8 @@ class Grafo {
 
 	}
 	
-	void permuta(){
-		int permutationO[MAX_CITIES], distance=0;
+	void geraPop(){ //gera populacao inicial
+		int permutationO[MAX_CITIES] ;
 		int conta_pop=0;
 		
 		int min = MAX_INT, min2=MAX_INT,pos=0,pos2=0;
@@ -212,9 +217,11 @@ class Grafo {
 		}
 		
 		do{
-			if(rotas[conta_pop][0]==-1)
-				continue;
-				
+			if(rotas[conta_pop][0]==-1){
+							conta_pop++;
+					continue;
+			}
+			
 			distancias[conta_pop] = distanciaDoVetor(permutationO);
 			if( distancias[conta_pop] < min){//procura menor distancia
 				pos2=pos;//posicao do segundo menor elem
@@ -228,27 +235,23 @@ class Grafo {
            }
            //cout<<distancias[conta_pop] ;
         	conta_pop++;
-			//cout<<" "<<endl;
-			//crossover(rotas[0],rotas[conta_pop-1]);
-		}while(next_permutation(permutationO+1,permutationO+numCidades) && conta_pop<POP_MAX);
+		}while(next_permutation(permutationO+1,permutationO+numCidades) && conta_pop<popPai);
 		
-			crossover(rotas[pos2],rotas[pos]);
-			rotas[pos2][0]=-1;
-			rotas[pos][0]=-1;
+		//	crossover(rotas[pos2],rotas[pos]);
+		//	rotas[pos2][0]=-1;
+		//	rotas[pos][0]=-1;
 			
-			//cout<<pos2<<" min "<<min2 <<endl;
-			//cout<<pos<<" min "<<min <<endl;
 	
 	}
 	
-	void teste(){
+	void geraFilho(){// casa os 2 melhores pais e gera 1 filho combinando os dois pais
 		int conta_pop=0, pos=0, min=MAX_INT, min2, pos2;
-		//cout<<"acabei"<<endl;
-		do{
+
+		do{//acha os 2 menores caminhos
 			if(rotas[conta_pop][0]==-1){
 							conta_pop++;
 					continue;
-					}
+			}
 		
 			if( distancias[conta_pop] < min){//procura menor distancia
 				pos2=pos;//posicao do segundo menor elem
@@ -258,9 +261,10 @@ class Grafo {
 			}
 		
 			conta_pop++;
-		}while(conta_pop<POP_MAX);
+		}while(conta_pop<popPai);
 		
 		crossover(rotas[pos2],rotas[pos]);
+		crossover(rotas[pos],rotas[pos2]);
 		rotas[pos2][0]=-1;
 		rotas[pos][0]=-1;
 		
@@ -268,30 +272,19 @@ class Grafo {
 	
 	}
 	
-	//crossover
+
+    //crossover
 	
 	void crossover(int p1[],int p2[]){//recebe pai1 e pai2
-	srand (time(NULL));
+
 		//numCidades=4;
 		int f1[numCidades];
 		int particao=rand() % (numCidades);
-		int particao2= ( rand() % (numCidades/2) ) + numCidades/2;
-		cout<<particao2<<endl;
+		//int particao2= ( rand() % (numCidades/2) ) + numCidades/2;
+		cout<<particao<<endl;
 		
-		//f1[2]==NULL;
-/*		for(int i=0; i< numCidades; i++){
-			if (i<particao  )
-				f1[i]=p1[i];
-			else 
-				f1[i]=p2[i];
-			//else
-				//f1[i]=p1[i];
-			
-				
-			cout<<f1[i]<< " ";
-		}
-	*/	
-	for(int i=0 , j=numCidades; i< particao; i++,j--){
+
+	for(int i=0 ; i< particao; i++){
 			if ( contem(f1,p1[i])==-1  )
 				f1[i]=p1[i];
 			else 
@@ -306,12 +299,13 @@ class Grafo {
 			else 
 				f1[i]=p1[i];
 		
+		//std::copy(f1,f1+numCidades,begin(rotasAux[popFilha]) );
+        memcpy ( rotasAux[popFilha], f1, sizeof(f1) );
+        popFilha++;
 		for(int i=0; i< numCidades; i++)
-			cout<<f1[i]<< " ";
-	cout<<endl;
-	cout<<distanciaDoVetor(f1)<<endl;
-			
-		
+			cout<<rotasAux[popFilha-1][i]<< " ";
+		cout<<endl;
+		cout<<distanciaDoVetor(f1)<<endl;
 	
 	}
 	
@@ -332,10 +326,10 @@ class Grafo {
 //=====================================================================
 int main(int argc, char **argv){
 /* initialize random seed: */
-//  srand (time(NULL));
+  srand (time(NULL));
 Grafo *g = new Grafo;
-		int p1[4]={1,2,3,4};
-		int p2[]={4,3,2,1};
+		//int p1[4]={1,2,3,4};
+		//int p2[]={4,3,2,1};
 		//std::find(p1.begin(), p1.end(), 1) ;
 		
 		/*size_t p1size = sizeof(p1) / sizeof(int);
@@ -349,8 +343,11 @@ Grafo *g = new Grafo;
 		g->calcularDistancias();
 		//g->crossover(p1,p2);
 		//g->imprimirDistancias();
-		g->permuta();
-		g->teste();
+		g->geraPop();
+		
+        for(int i = 0; i <  1 ; i++) 
+            g->geraFilho();
+
 		//g->imprimiBruteForce();
 		//g->imprimiAG();
 		//g->imprimiBB();
