@@ -57,6 +57,7 @@ class Grafo {
 	  int cidadesy[MAX_CITIES];
       int matriz[MAX_CITIES][MAX_CITIES];//int
       int rotas[POP_MAX][MAX_CITIES];
+      int distancias[POP_MAX];
       
    public:
       //--------------------------------------------------------------------
@@ -198,7 +199,7 @@ class Grafo {
 	void permuta(){
 		int permutationO[MAX_CITIES], distance=0;
 		int conta_pop=0;
-		int distancias[POP_MAX];
+		
 		int min = MAX_INT, min2=MAX_INT,pos=0,pos2=0;
 		
 		
@@ -211,7 +212,9 @@ class Grafo {
 		}
 		
 		do{
-			
+			if(rotas[conta_pop][0]==-1)
+				continue;
+				
 			distancias[conta_pop] = distanciaDoVetor(permutationO);
 			if( distancias[conta_pop] < min){//procura menor distancia
 				pos2=pos;//posicao do segundo menor elem
@@ -230,11 +233,38 @@ class Grafo {
 		}while(next_permutation(permutationO+1,permutationO+numCidades) && conta_pop<POP_MAX);
 		
 			crossover(rotas[pos2],rotas[pos]);
-			rotas[pos2]=-1;
-			rotas[pos]=-1;
+			rotas[pos2][0]=-1;
+			rotas[pos][0]=-1;
 			
 			//cout<<pos2<<" min "<<min2 <<endl;
 			//cout<<pos<<" min "<<min <<endl;
+	
+	}
+	
+	void teste(){
+		int conta_pop=0, pos=0, min=MAX_INT, min2, pos2;
+		//cout<<"acabei"<<endl;
+		do{
+			if(rotas[conta_pop][0]==-1){
+							conta_pop++;
+					continue;
+					}
+		
+			if( distancias[conta_pop] < min){//procura menor distancia
+				pos2=pos;//posicao do segundo menor elem
+				min2=min;
+				min = distancias[conta_pop]; 
+				pos=conta_pop;//posicao do menor elemento
+			}
+		
+			conta_pop++;
+		}while(conta_pop<POP_MAX);
+		
+		crossover(rotas[pos2],rotas[pos]);
+		rotas[pos2][0]=-1;
+		rotas[pos][0]=-1;
+		
+		
 	
 	}
 	
@@ -320,6 +350,7 @@ Grafo *g = new Grafo;
 		//g->crossover(p1,p2);
 		//g->imprimirDistancias();
 		g->permuta();
+		g->teste();
 		//g->imprimiBruteForce();
 		//g->imprimiAG();
 		//g->imprimiBB();
