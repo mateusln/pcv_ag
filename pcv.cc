@@ -221,16 +221,20 @@ class Grafo {
 			}
 		   for(int i = 0; i <  numCidades ; i++){ 
                 rotas[conta_pop][i]=permutationO[i];
-                cout<<rotas[conta_pop][i]<<" ";
+                //cout<<rotas[conta_pop][i]<<" ";
            }
-           cout<<distancias[conta_pop] ;
+           //cout<<distancias[conta_pop] ;
         	conta_pop++;
-			cout<<" "<<endl;
-			
+			//cout<<" "<<endl;
+			//crossover(rotas[0],rotas[conta_pop-1]);
 		}while(next_permutation(permutationO+1,permutationO+numCidades) && conta_pop<POP_MAX);
 		
-			cout<<pos2<<" min "<<min2 <<endl;
-			cout<<pos<<" min "<<min <<endl;
+			crossover(rotas[pos2],rotas[pos]);
+			rotas[pos2]=-1;
+			rotas[pos]=-1;
+			
+			//cout<<pos2<<" min "<<min2 <<endl;
+			//cout<<pos<<" min "<<min <<endl;
 	
 	}
 	
@@ -238,25 +242,44 @@ class Grafo {
 	
 	void crossover(int p1[],int p2[]){//recebe pai1 e pai2
 	srand (time(NULL));
-		numCidades=4;
+		//numCidades=4;
 		int f1[numCidades];
-		int particao=rand() % (numCidades/2);
+		int particao=rand() % (numCidades);
 		int particao2= ( rand() % (numCidades/2) ) + numCidades/2;
 		cout<<particao2<<endl;
 		
 		//f1[2]==NULL;
-		for(int i=0; i< numCidades; i++){
-			if (i<particao && contem(f1,p1[i])==-1)
+/*		for(int i=0; i< numCidades; i++){
+			if (i<particao  )
 				f1[i]=p1[i];
-			else if(contem(f1,p2[i])==-1)
+			else 
 				f1[i]=p2[i];
-			else
-				f1[i]=p1[i];
+			//else
+				//f1[i]=p1[i];
 			
 				
 			cout<<f1[i]<< " ";
 		}
-		cout<<endl;
+	*/	
+	for(int i=0 , j=numCidades; i< particao; i++,j--){
+			if ( contem(f1,p1[i])==-1  )
+				f1[i]=p1[i];
+			else 
+				f1[i]=p2[i];
+				
+			
+		}
+		
+		for(int i=particao; i< numCidades; i++)
+		if ( contem(f1,p2[i])==-1  )
+				f1[i]=p2[i];
+			else 
+				f1[i]=p1[i];
+		
+		for(int i=0; i< numCidades; i++)
+			cout<<f1[i]<< " ";
+	cout<<endl;
+	cout<<distanciaDoVetor(f1)<<endl;
 			
 		
 	
@@ -294,9 +317,9 @@ Grafo *g = new Grafo;
 		
 		g->lerVertice();
 		g->calcularDistancias();
-		g->crossover(p1,p2);
+		//g->crossover(p1,p2);
 		//g->imprimirDistancias();
-		//g->permuta();
+		g->permuta();
 		//g->imprimiBruteForce();
 		//g->imprimiAG();
 		//g->imprimiBB();
