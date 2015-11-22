@@ -315,26 +315,43 @@ class Grafo {
 		return -1;
 	}
 		
-    void metodo(){
-        for(int i = 0; i <  popPai/2 ; i++)//gera os flhos
+    void evolui(int geracoes){//recebe o numero de geracoes
+        int k=0;
+        do{
+
+            for(int i = 0; i <  popPai/2 ; i++)//gera os flhos
             geraFilho();
        
-       for(int i=0; i< numCidades; i++)
-			cout<<rotasAux[0][i]<< " ";
-		cout<<endl;
-		cout<<distanciaDoVetor(rotas[0])<<endl;
+            for(int i=0; i< numCidades; i++)
+                cout<<rotasAux[0][i]<< " ";
+	    	cout<<endl;
+		    cout<<distanciaDoVetor(rotas[0])<<endl;
 
-		cout<<distanciaDoVetor(rotas[1])<<endl;
+    		cout<<distanciaDoVetor(rotas[1])<<endl;
 	
-        popPai=popFilha; 
+            popPai=popFilha; 
 
-        for(int i = 0; i <  popFilha ; i++)//populacao filha se torna a pop. pai
-            memcpy(rotas[i],rotasAux[i],sizeof(rotasAux[i]));
+            for(int i = 0; i <  popFilha ; i++)//populacao filha se torna a pop. pai
+                memcpy(rotas[i],rotasAux[i],sizeof(rotasAux[i]));
         
-        popFilha=0;
-
+            popFilha=0;
+            k++;
+        }while(k<geracoes);
 
     }
+
+    void menorCaminho(){
+        evolui(5);
+        int menorCaminho=MAX_INT;
+
+        for(int i = 0; i <  popPai ; i++){
+            int ditancia =distanciaDoVetor(rotas[i]);
+            if(ditancia<menorCaminho)
+                menorCaminho=ditancia;
+        }
+        cout<<menorCaminho<<endl;
+    }
+
 
 };
 
@@ -361,8 +378,8 @@ Grafo *g = new Grafo;
 		//g->crossover(p1,p2);
 		//g->imprimirDistancias();
 		g->geraPop();
-	for(int i = 0; i <  5 ; i++) 	
-        g->metodo();
+//        g->evolui(5);
+        g->menorCaminho();      
 
 		//g->imprimiBruteForce();
 		//g->imprimiAG();
