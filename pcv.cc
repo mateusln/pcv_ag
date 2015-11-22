@@ -38,7 +38,7 @@ using namespace std;
 #define NULO						-1
 #define MAX_INT         		0x7FFFFFFF
 //Populacao maxima
-#define POP_MAX 362880
+#define POP_MAX 10000 //362880
 
 
 
@@ -244,7 +244,7 @@ class Grafo {
 	
 	}
 	
-	void geraFilho(){// casa os 2 melhores pais e gera 1 filho combinando os dois pais
+	void geraFilho(){// casa os 2 melhores pais e gera 2 filhos combinando os dois pais
 		int conta_pop=0, pos=0, min=MAX_INT, min2, pos2;
 
 		do{//acha os 2 menores caminhos
@@ -265,7 +265,7 @@ class Grafo {
 		
 		crossover(rotas[pos2],rotas[pos]);
 		crossover(rotas[pos],rotas[pos2]);
-		rotas[pos2][0]=-1;
+		rotas[pos2][0]=-1; //marca os pais como "usados"
 		rotas[pos][0]=-1;
 		
 		
@@ -277,11 +277,8 @@ class Grafo {
 	
 	void crossover(int p1[],int p2[]){//recebe pai1 e pai2
 
-		//numCidades=4;
 		int f1[numCidades];
 		int particao=rand() % (numCidades);
-		//int particao2= ( rand() % (numCidades/2) ) + numCidades/2;
-		cout<<particao<<endl;
 		
 
 	for(int i=0 ; i< particao; i++){
@@ -300,13 +297,14 @@ class Grafo {
 				f1[i]=p1[i];
 		
 		//std::copy(f1,f1+numCidades,begin(rotasAux[popFilha]) );
-        memcpy ( rotasAux[popFilha], f1, sizeof(f1) );
+        memcpy ( rotasAux[popFilha], f1, sizeof(f1) );// armazena os filhos em um vetor auxiliar
         popFilha++;
-		for(int i=0; i< numCidades; i++)
+		/*imprimir rota e distancia
+        for(int i=0; i< numCidades; i++)
 			cout<<rotasAux[popFilha-1][i]<< " ";
 		cout<<endl;
 		cout<<distanciaDoVetor(f1)<<endl;
-	
+	*/
 	}
 	
 	int contem(int vet [], int x){ // retorna a posicao do elemento x se ele existir e -1 se ele n existir no vetor
@@ -317,7 +315,26 @@ class Grafo {
 		return -1;
 	}
 		
+    void metodo(){
+        for(int i = 0; i <  popPai/2 ; i++)//gera os flhos
+            geraFilho();
+       
+       for(int i=0; i< numCidades; i++)
+			cout<<rotasAux[0][i]<< " ";
+		cout<<endl;
+		cout<<distanciaDoVetor(rotas[0])<<endl;
 
+		cout<<distanciaDoVetor(rotas[1])<<endl;
+	
+        popPai=popFilha; 
+
+        for(int i = 0; i <  popFilha ; i++)//populacao filha se torna a pop. pai
+            memcpy(rotas[i],rotasAux[i],sizeof(rotasAux[i]));
+        
+        popFilha=0;
+
+
+    }
 
 };
 
@@ -344,9 +361,8 @@ Grafo *g = new Grafo;
 		//g->crossover(p1,p2);
 		//g->imprimirDistancias();
 		g->geraPop();
-		
-        for(int i = 0; i <  1 ; i++) 
-            g->geraFilho();
+	for(int i = 0; i <  5 ; i++) 	
+        g->metodo();
 
 		//g->imprimiBruteForce();
 		//g->imprimiAG();
